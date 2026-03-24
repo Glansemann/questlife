@@ -22,17 +22,17 @@ interface Quest {
   status: "active" | "completed";
 }
 
-const FALLBACK_QUESTS: Quest[] = [
-  { id: "1", title: "Morning stretch routine", description: "Do a 10-minute stretch when you wake up", difficulty: "easy", statType: "endurance", xpReward: 30, status: "active" },
-  { id: "2", title: "Read for 20 minutes", description: "Pick up a book or article and read uninterrupted", difficulty: "normal", statType: "knowledge", xpReward: 50, status: "active" },
-  { id: "3", title: "Cook a new recipe", description: "Try making something you've never cooked before", difficulty: "normal", statType: "creativity", xpReward: 50, status: "active" },
-  { id: "4", title: "Message an old friend", description: "Reach out to someone you haven't talked to in a while", difficulty: "easy", statType: "social", xpReward: 30, status: "active" },
-  { id: "5", title: "30-min workout", description: "Complete a 30-minute workout of your choice", difficulty: "hard", statType: "strength", xpReward: 100, status: "active" },
-];
+const QUESTS_STORAGE_KEY = "questlife_daily_quests";
+const QUESTS_DATE_KEY = "questlife_quests_date";
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
 
 export default function PlayPage() {
   const [state, setState] = useState<GameState | null>(null);
-  const [quests, setQuests] = useState<Quest[]>(FALLBACK_QUESTS);
+  const [quests, setQuests] = useState<Quest[]>([]);
+  const [loading, setLoading] = useState(true);
   const [popup, setPopup] = useState<{ xp: number; achievements: { title: string; icon: string }[]; leveledUp: boolean } | null>(null);
 
   useEffect(() => {
@@ -41,6 +41,39 @@ export default function PlayPage() {
       s = initFromOnboarding();
     }
     setState(s);
+
+    // Load quests — fetch new ones if it's a new day
+    const savedDate = localStorage.getItem(QUESTS_DATE_KEY);
+    const savedQuests = localStorage.getItem(QUESTS_STORAGE_KEY);
+
+    if (savedDate === todayStr() && savedQuests) {
+      setQuests(JSON.parse(savedQuests));
+      setLoading(false);
+    } else {
+      fetch("/api/quests/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ goals: s.goals }),
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          setQuests(data.quests);
+          localStorage.setItem(QUESTS_STORAGE_KEY, JSON.stringify(data.quests));
+          localStorage.setItem(QUESTS_DATE_KEY, todayStr());
+        })
+        .catch(() => {
+          // Fallback quests if API fails
+          const fallback = [
+            { id: "f1", title: "Morning stretch", description: "Do a 10-minute stretch", difficulty: "easy", statType: "endurance", xpReward: 30, status: "active" as const },
+            { id: "f2", title: "Read for 20 minutes", description: "Read a book or article", difficulty: "normal", statType: "knowledge", xpReward: 50, status: "active" as const },
+            { id: "f3", title: "Cook something new", description: "Try a new recipe", difficulty: "normal", statType: "creativity", xpReward: 50, status: "active" as const },
+            { id: "f4", title: "Message a friend", description: "Reach out to someone", difficulty: "easy", statType: "social", xpReward: 30, status: "active" as const },
+            { id: "f5", title: "30-min workout", description: "Any workout of your choice", difficulty: "hard", statType: "strength", xpReward: 100, status: "active" as const },
+          ];
+          setQuests(fallback);
+        })
+        .finally(() => setLoading(false));
+    }
   }, []);
 
   const handleComplete = useCallback((questId: string) => {
@@ -51,9 +84,11 @@ export default function PlayPage() {
     const { newState, result } = completeQuestAction(state, quest);
     setState(newState);
 
-    setQuests((prev) =>
-      prev.map((q) => (q.id === questId ? { ...q, status: "completed" as const } : q)),
-    );
+    setQuests((prev) => {
+      const updated = prev.map((q) => (q.id === questId ? { ...q, status: "completed" as const } : q));
+      localStorage.setItem(QUESTS_STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
 
     setPopup({
       xp: result.xpGained,
@@ -157,6 +192,12 @@ export default function PlayPage() {
           {quests.filter((q) => q.status === "completed").length}/{quests.length}
         </span>
       </div>
+
+      {loading && (
+        <div className="card" style={{ textAlign: "center", padding: 32, color: "var(--text-dim)" }}>
+          Generating today&apos;s quests...
+        </div>
+      )}
 
       {quests.map((quest) => (
         <div
