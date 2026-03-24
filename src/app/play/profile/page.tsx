@@ -5,10 +5,30 @@ import { loadState, type GameState } from "@/lib/game-state";
 
 export default function ProfilePage() {
   const [state, setState] = useState<GameState | null>(null);
+  const [upgrading, setUpgrading] = useState(false);
 
   useEffect(() => {
     setState(loadState());
   }, []);
+
+  async function handleUpgrade() {
+    setUpgrading(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: null }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch {
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setUpgrading(false);
+    }
+  }
 
   if (!state) return null;
 
@@ -120,8 +140,8 @@ export default function ProfilePage() {
           <div style={{ fontSize: 13, color: "var(--text-dim)", marginBottom: 16, lineHeight: 1.5 }}>
             Unlimited AI-generated quests, guild challenges, detailed analytics, and no ads.
           </div>
-          <button className="btn btn-primary" style={{ padding: "12px 32px" }}>
-            Upgrade — $5/mo
+          <button className="btn btn-primary" style={{ padding: "12px 32px" }} onClick={handleUpgrade} disabled={upgrading}>
+            {upgrading ? "Loading..." : "Upgrade — $5/mo"}
           </button>
         </div>
 
