@@ -248,9 +248,9 @@ export default function PlayPage() {
           <span className="nav-icon">{"\u2694\uFE0F"}</span>
           Quests
         </a>
-        <a className="nav-item" href="/play/stats">
-          <span className="nav-icon">{"\u{1F4CA}"}</span>
-          Stats
+        <a className="nav-item" href="/play/feed">
+          <span className="nav-icon">{"\u{1F4E1}"}</span>
+          Feed
         </a>
         <a className="nav-item" href="/play/guild">
           <span className="nav-icon">{"\u{1F6E1}\uFE0F"}</span>

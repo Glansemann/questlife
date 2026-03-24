@@ -115,6 +115,16 @@ export default function ProfilePage() {
               borderBottom: "1px solid var(--border)", color: "var(--text)",
               fontSize: 15, textAlign: "left", cursor: "pointer",
             }}
+            onClick={() => { window.location.href = "/play/stats"; }}
+          >
+            View detailed stats & achievements
+          </button>
+          <button
+            style={{
+              width: "100%", padding: "16px 20px", background: "none", border: "none",
+              borderBottom: "1px solid var(--border)", color: "var(--text)",
+              fontSize: 15, textAlign: "left", cursor: "pointer",
+            }}
             onClick={() => { window.location.href = "/onboard"; }}
           >
             Change goals
@@ -153,9 +163,9 @@ export default function ProfilePage() {
           <span className="nav-icon">{"\u2694\uFE0F"}</span>
           Quests
         </a>
-        <a className="nav-item" href="/play/stats">
-          <span className="nav-icon">{"\u{1F4CA}"}</span>
-          Stats
+        <a className="nav-item" href="/play/feed">
+          <span className="nav-icon">{"\u{1F4E1}"}</span>
+          Feed
         </a>
         <a className="nav-item" href="/play/guild">
           <span className="nav-icon">{"\u{1F6E1}\uFE0F"}</span>
