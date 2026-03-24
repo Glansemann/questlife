@@ -130,19 +130,16 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        {/* Upgrade CTA */}
+        {/* Early Access Banner */}
         <div className="card" style={{
           textAlign: "center", padding: 24, marginTop: 24,
-          background: "linear-gradient(135deg, #7c5cfc10, #a78bfa10)",
-          border: "1px solid var(--accent)",
+          background: "linear-gradient(135deg, #34d39910, #7c5cfc10)",
+          border: "1px solid var(--green)",
         }}>
-          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>QuestLife Pro</div>
-          <div style={{ fontSize: 13, color: "var(--text-dim)", marginBottom: 16, lineHeight: 1.5 }}>
-            Unlimited AI-generated quests, guild challenges, detailed analytics, and no ads.
+          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6, color: "var(--green)" }}>Early Access — Everything Free!</div>
+          <div style={{ fontSize: 13, color: "var(--text-dim)", lineHeight: 1.5 }}>
+            You&apos;re one of our first users. All Pro features are unlocked for free during our launch period. Enjoy!
           </div>
-          <button className="btn btn-primary" style={{ padding: "12px 32px" }} onClick={handleUpgrade} disabled={upgrading}>
-            {upgrading ? "Loading..." : "Upgrade — $5/mo"}
-          </button>
         </div>
 
         <div style={{ textAlign: "center", padding: "24px 0 8px", fontSize: 12, color: "var(--text-dim)" }}>
